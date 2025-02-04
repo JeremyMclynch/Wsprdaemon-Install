@@ -1,6 +1,6 @@
 # Install Wsprdaemon
 
-## Install the Operating System
+## 1: Install the Operating System
 
 First before we can set up any software we need to install the OS, in this case Ubuntu.
 
@@ -9,7 +9,7 @@ Go to this download link and download the newest version of Ubuntu Server, for m
 The file will be a .iso file indicating it is a disk image.
 [](https://ubuntu.com/download/server)
 
-### Flashing the Installation Media
+### 1.1: Flashing the Installation Media
 
 Next download a program to flash the disk image to an external disk.
 
@@ -59,7 +59,7 @@ have plugged in multiple drives that need to be formated.
 
 Once the operation has completed eject the drive and remove it from your system.
 
-### Starting the OS Installation
+### 1.2: Starting the OS Installation
 
 Plug the flash drive into the computer you will be using as the server, with it turned off.
 
@@ -99,7 +99,7 @@ labeled "Search for third-party drivers" and press `Space`
 
 Move the cursor down and select done.
 
-### Next you need to connect the system to Wi-Fi.
+### 1.3: Next you need to connect the system to Wi-Fi.
 
 Next if you are doing this on the NJIT campus
 
@@ -187,7 +187,7 @@ Next you will see a menu for SSH configuration. move to
 >
 {style="note"}
 
-### Configuring SSH Keys
+### 1.4: Configuring SSH Keys
 
 **SSH** Is a tool that allows you to login to a server remotely
 while only needing to be connected to the same network.
@@ -196,7 +196,7 @@ This can be very useful as having a dedicated monitor for the
 server can take up a lot of space. Copying commands into the
 terminal can also be more difficult without SSH.
 
-#### Installing OpenSSH to your PC
+#### 1.4.1: Installing OpenSSH to your PC
 
 <tabs>
 <tab title="Windows">
@@ -292,7 +292,7 @@ You should get a notification with something along the following. Select `Yes`
 This has now preconfigured SSH for the installation.
 
 
-## Configuring the System
+## 2: Configuring the System
 
 Then move to done and select it.
 
@@ -344,7 +344,7 @@ enter `y` and press enter.
 
 Wait a few minutes for the software to install.
 
-### Configuring Network for WPA2-Enterprise (University/Eduroam Wi-Fi)
+### 2.1: Configuring Network for WPA2-Enterprise (University/Eduroam Wi-Fi)
 
 You may have connected the system to ethernet or for NJIT used the
 NJIoT Wi-Fi, but this network is not ideal for the server so we need to change it.
@@ -427,7 +427,7 @@ replacing `enp1s0` with your ethernet device ID.
 
 Now you should have both the Ethernet and Wi-Fi as connected wireless interfaces.
 
-### Setting up Tailscale VPN
+### 2.2: Setting up Tailscale VPN
 
 Now we will install Tailscale which is a VPN software that allows you to
 create your own private VPN network with your personal devices. This is recommended
@@ -464,7 +464,7 @@ It may be hidden behind the arrow
 
 ![image_6.png](image_6.png)
 
-### Logging in to the Server with SSH
+### 2.3: Logging in to the Server with SSH
 
 Now open the terminal on your personal computer and type in the following.
 ```Bash
@@ -525,7 +525,7 @@ mkdir ~/.ssh
 
 ![image_8.png](image_8.png)
 
-### Installing Wsprdaemon
+### 2.4: Installing Wsprdaemon
 
 Finally we can install [Wsprdaemon](https://github.com/rrobinett/wsprdaemon)
 
@@ -578,6 +578,8 @@ cd wsprdaemon
 
 This will clone the installation files from the source repo onto the computer,
 then run the main script inside which will create a template configuration file to be edited.
+
+#### 2.4.1: Configuring Wsprdaemon
 
 If you are not comfortable with using vim, I would recommend downloading the configuration template from the
 [Wsprdaemon GitHub](https://github.com/rrobinett/wsprdaemon/blob/master/wd_template.conf)
@@ -655,6 +657,8 @@ declare RECEIVER_LIST=(
 As for the `<Your Grid>` section enter your callsign or address into this website [](https://levinecentral.com/ham/grid_square.php) which will give you a grid square that refers to your
 global coordinates like `FN20vp` for NJIT in Newark, NJ.
 
+#### 2.4.2: Setting Up PSWS Account
+
 For these two sections `GRAPE_PSWS_ID="<Your Station ID>_<Your Instrument ID>"` and `GRAPE_PSWS_TOKEN="<TokenFromPSWSsite>"`, you need to make an account at [Personal Space Weather Station
 Central Control System](https://pswsnetwork.caps.ua.edu/signup/) website. Then create a station in the [Station Tab](https://pswsnetwork.caps.ua.edu/stations/stations/) and click the `Add New Station`
 button.
@@ -701,6 +705,8 @@ Instrument Type is where you select the type of radio being used, for the Wsprda
 ![image_13.png](image_13.png)
 
 Then, add the instrument and take note of the instrument ID.
+
+#### 2.4.3: Finishing the Configuration File
 
 Now go back to the config file and change the `GRAPE_PSWS_ID="<Your Station ID>_<Your Instrument ID>"` line to the numbers you added.
 
@@ -791,6 +797,7 @@ Otherwise, go into normal mode with `escape` as well and enter `:wq` to save and
 >
 {style="note"}
 
+
 Once you have saved the configuration file run these commands again.
 
 ```Bash
@@ -823,7 +830,9 @@ At a certain point it may ask you to save an ssh key to the server,
 when it asks for the file location press `enter` to select the default,
 then select `enter` again twice to save it without a password.
 
-Once all of the installation scripts finish and you can enter commands with the prompt `wsprdaemon@sdrpc:~/wsprdaemon$`
+#### 2.4.4: Configuring KA9Q-Radio
+
+Once all the installation scripts finish and you can enter commands with the prompt `wsprdaemon@sdrpc:~/wsprdaemon$`
 again.
 
 Enter this line
@@ -886,6 +895,8 @@ You will be kicked off the ssh session again, wait a few minutes and run the ssh
 ```Bash
 ssh wsprdaemon@sdrpc
 ```
+
+#### 1.5 Final Steps
 
 Now that you are connected again, run two more commands.
 
