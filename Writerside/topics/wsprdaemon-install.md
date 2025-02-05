@@ -51,7 +51,7 @@ Once the program is installed grab a USB flash drive, It should be at least 8 GB
 > **If you are Using Windows**
 >
 > While the operation is running you will start to see errors from file explorer stating that you
-have plugged in multiple drives that need to be formated.
+> have plugged in multiple drives that need to be formated.
 >
 > Ignore these messages and close out of the windows, **Do Not Click Format** on any of the popups.
 >
@@ -507,19 +507,19 @@ mkdir ~/.ssh
 >
 > Additionally, you can now copy and paste commands and text into the terminal from here on out.
 >
-> Note that if you are on windows using the `ctrl` key has different operations in the terminal as it *literally*
-> controls the terminal. ex. to kill a command running you press `ctrl + C`
+> Note that if you are on windows using the <shortcut>Ctrl</shortcut> key has different operations in the terminal as it *literally*
+> controls the terminal. ex. to kill a command running you press <shortcut>Ctrl</shortcut><shortcut>C</shortcut>
 >
 > This presents an issue as that is the command to copy on windows, instead in the terminal you must instead do
-> `ctrl + shift + C` or `ctrl + shift + V` to paste. If you highlight text in the terminal and right click this will also
+> <shortcut>Ctrl</shortcut><shortcut>Shift</shortcut><shortcut>C</shortcut> or <shortcut>Ctrl</shortcut><shortcut>Shift</shortcut><shortcut>V</shortcut> to paste. If you highlight text in the terminal and right click this will also
 > copy the text, then pressing right click again will paste it.
 >
-> MacOS `Cmd` keybinds are still valid, and pressing `ctrl + C` will kill running commands as well.
+> MacOS <shortcut>⌘ Cmd</shortcut><shortcut>C</shortcut> keybinds are still valid, and pressing <shortcut>Ctrl</shortcut><shortcut>C</shortcut> will kill running commands as well.
 >
 {style="note"}
 
 > **You may see text at times display with notation** `^<key>` like `^C` **This is the shorthand notation to tell the user
-> to press** `Ctrl + <key>` This is why the `ctrl` key on Mac keyboards have the `^` character.
+> to press** <shortcut>Ctrl</shortcut><shortcut>\<Key\></shortcut> This is why the <shortcut>ctrl</shortcut> key on Mac keyboards have the `^` character.
 >
 {style="tip"}
 
@@ -780,20 +780,20 @@ nvim ~/wsprdaemon/wsprdaemon.conf
 ```
 
 This should delete the old template and open a fresh file to edit, now copy the configuration text file on your computer
-and in vim on the server enter insert mode by pressing `i` and either do
-`ctrl + shift + v`, or on MacOS `cmd + v`. (right-clicking then selecting paste will also work)
+and in vim on the server enter insert mode by pressing <shortcut>i</shortcut> and either do
+<shortcut>Ctrl</shortcut><shortcut>Shift</shortcut><shortcut>V</shortcut>, or on MacOS <shortcut>⌘ Cmd</shortcut><shortcut>V</shortcut>. (right-clicking then selecting paste will also work)
 
 This should paste the whole configuration file into the server. If you messed up somewhere you can quit without saving
-by going into normal mode by pressing `escape` entering `:q!` then, try again with `nvim ~/wsprdaemon/wsprdaemon.conf` then perform the steps again
+by going into normal mode by pressing <shortcut>escape</shortcut> entering `:q!` then, try again with `nvim ~/wsprdaemon/wsprdaemon.conf` then perform the steps again
 
-Otherwise, go into normal mode with `escape` as well and enter `:wq` to save and exit the editor.
+Otherwise, go into normal mode with <shortcut>escape</shortcut> as well and enter `:wq` to save and exit the editor.
 
 > If you keep having issues with *nvim* you can try *nano* instead, which is a different command line based text editor.
 > I wouldn't recomend using it for editing the sudoers file from earlier though as it doesnt like editing read only files.
 >
 > You can use nano instead by replacing `nvim` with `nano` in the commands mentioned above.
-> *Remember that the notation `^` refers to the `ctrl` key, so to save and exit in nano it says press `^X` which means
-> `ctrl + X`.
+> *Remember that the notation `^` refers to the <shortcut>ctrl</shortcut> key, so to save and exit in nano it says press `^X` which means
+> <shortcut>Ctrl</shortcut><shortcut>X</shortcut>
 >
 {style="note"}
 
@@ -875,8 +875,8 @@ freq = "60000 2500000 5000000 10000000 15000000 20000000 25000000 3330000 785000
 ```
 and change the `disable = yes` to `disable = no`
 
-If you have trouble finding the lines you can search for them by going into normal mode with `escape` then enter
-`/WWV` to search for the WWV lines, then select `enter` to enter normal mode again. Same for the other lines
+If you have trouble finding the lines you can search for them by going into normal mode with <shortcut>escape</shortcut> then enter
+`/WWV` to search for the WWV lines, then select <shortcut>enter</shortcut> to enter normal mode again. Same for the other lines
 `/FT8` to search for the section with the lines above.
 
 Once this is done enter normal mode, then save and quit using `:wq!` this time.
