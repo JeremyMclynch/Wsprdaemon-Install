@@ -7,4 +7,5 @@
                  start-page="wsprdaemon-install.md">
 
     <toc-element topic="wsprdaemon-install.md"/>
+    <toc-element topic="Updates.md"/>
 </instance-profile>

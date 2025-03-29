@@ -1,6 +1,9 @@
 # Install Wsprdaemon
 
+<show-structure/>
+
 ## 1: Install the Operating System
+
 
 First before we can set up any software we need to install the OS, in this case Ubuntu.
 
@@ -65,7 +68,7 @@ Plug the flash drive into the computer you will be using as the server, with it 
 
 Now plug in a Keyboard (You will not need a mouse)
 
-Now turn on the computer and immediately and repeatedly press the `F7` Button quickly
+Now turn on the computer and immediately and repeatedly press the <control>F7</control> Button quickly
 if you are using the recommended Beelink mini PC.
 
 If you are using something else you may need to look up what
@@ -80,26 +83,28 @@ if you would like to "Try or Install Ubuntu" and a few other options.
 
 ![Install-2.png](Install-2.png)
 
-Select the First one with `Enter`.
+<p> Select the option labeled <ui-path>Try or Install Ubuntu Server</ui-path> with <control>Enter</control>.</p>
 
 You should see a bunch of text flying up the screen, this is normal. After a little bit you should
 see something like this.
 
 ![Install-1.png](Install-1.png)
 
-**Using the arrow keys** move the green cursor to English then press `Space`
+**Using the arrow keys** move the green cursor to English then press <control>Space</control>
 
 Next you will see a screen asking you to select your Keyboard layout, leave the default options
-and select done with `Space`
+and select done with <control>Space</control>
 
-On the next screen you will see a few options, using the arrow keys move the cursor up to the section
-labeled "Search for third-party drivers" and press `Space`
+<p>On the next screen you will see a few options, using the arrow keys move the cursor up to the section
+labeled <ui-path>Ubuntu Server (minimized)</ui-path> and press <control>Space</control> to select it.</p>
 
 ![install-3.png](install-3.png)
 
-Move the cursor down and select done.
+Move the cursor down and select done using <control>Enter</control>.
 
 ### 1.3: Next you need to connect the system to Wi-Fi.
+
+***Skip if using ethernet***
 
 Next if you are doing this on the NJIT campus
 
@@ -151,16 +156,23 @@ for the storage configuration.
 
 ![Install-4.png](Install-4.png)
 
-Leave the default configuration which will erase the whole
+Move down and de-select the option labeled <ui-path>Set up this disk as an LVM group</ui-path> using 
+<control>Space</control>. 
+
+**Make sure there is no X in the brackets**
+
+Leave the <ui-path>Use an entire disk</ui-path> option enabled, which will erase the whole
 internal drive of the computer. Then, Select done.
 
-You will see a summary of the storage configuration, select done.
+You will see a summary of the storage configuration, select <ui-path>done</ui-path>.
 
 Next you will see a warning confirming destructive action,
-move the cursor to continue and select it with `Space`.
+move the cursor to continue and select it with <control>Space</control>.
 
 Next you will see a screen asking to set up the default account,
-I recommend the following configuration.
+I recommend the following configuration. 
+
+***The username should be "wsprdaemon"***
 
 ![image_7.png](image_7.png)
 
@@ -169,13 +181,13 @@ I recommend the following configuration.
 >
 {style="warning"}
 
-Once you have made your choises, select done.
+Once you have made your choices, select done.
 
 On the next page you will be asked about upgrading to ubuntu
 pro, leave the default option of skip for now and continue.
 
 Next you will see a menu for SSH configuration. move to
-"Install OpenSSH server" and select it with `Space`
+"Install OpenSSH server" and select it with <control>Space</control>`
 
 ![Install-6.png](Install-6.png)
 
@@ -189,6 +201,8 @@ Next you will see a menu for SSH configuration. move to
 
 ### 1.4: Configuring SSH Keys
 
+***Optional but recommended***
+
 **SSH** Is a tool that allows you to login to a server remotely
 while only needing to be connected to the same network.
 
@@ -197,6 +211,8 @@ server can take up a lot of space. Copying commands into the
 terminal can also be more difficult without SSH.
 
 #### 1.4.1: Installing OpenSSH to your PC
+
+***Optional but recommended***
 
 <tabs>
 <tab title="Windows">
@@ -291,10 +307,9 @@ You should get a notification with something along the following. Select `Yes`
 
 This has now preconfigured SSH for the installation.
 
+### 1.5: Finalizing Installation
 
-## 2: Configuring the System
-
-Then move to done and select it.
+Then, move to done and select it.
 
 You will next see a screen that may or may not list third party
 drivers, select any if applicable and select continue.
@@ -302,7 +317,7 @@ drivers, select any if applicable and select continue.
 The next screen will give you several extra software that can be installed
 on the system, these should not be needed so you can select done.
 
-The system will now start installing, this prosses may take 5-10 minutes.
+The system will now start installing, this processes may take 5-10 minutes.
 
 When it has finished a button will appear that says "Reboot Now"
 select it.
@@ -312,6 +327,7 @@ then press enter", remove the flash drive then press enter.
 
 The system will now restart.
 
+## 2: Configuring the System
 
 You will be asked to login to the system.
 
@@ -348,7 +364,7 @@ Wait a few minutes for the software to install.
 
 You may have connected the system to ethernet or for NJIT used the
 NJIoT Wi-Fi, but this network is not ideal for the server so we need to change it.
-If you will continue to use ethernet or are using a WPA Personal Wi-Fi (Only a Wi-Fi password to login no username)
+If you continue to use ethernet or are using a WPA Personal Wi-Fi (Only a Wi-Fi password to login no username)
 you do not need to do this step but if you  plan to place the server somewhere without a LAN connection, and you did not setup the Wi-Fi
 in the preinstallation environment and are at a University use this process.
 
@@ -386,8 +402,8 @@ and `NJITsecure` with the SSID of your Wi-Fi network. (SSID just being the name 
 on your computer or phone)
 
 ```bash
-nmcli con add type wifi ifname wlo1 con-name NJITsecure ssid NJITsecure
-nmcli con edit NJITsecure
+sudo nmcli con add type wifi ifname wlo1 con-name NJITsecure ssid NJITsecure
+sudo nmcli con edit NJITsecure
 ```
 
 This will open a new shell to edit the network config.
@@ -405,11 +421,31 @@ nmcli> activate
 ```
 Wait a few seconds, then you should get an output stating the connection was successful.
 
-Then enter, `quit` to exit the configuration shell.
+Press any button to go back to the command line.
+Then, enter `quit` to exit the configuration shell.
 
 You should now be connected to the Wi-Fi.
 
-If you would also like to add Ethernet as a backup enter the following.
+If you would also like to add Ethernet as a backup do the following.
+
+
+
+```bash
+ sudo touch /etc/NetworkManager/conf.d/10-globally-managed-devices.conf
+ sudo nvim /etc/NetworkManager/NetworkManager.conf
+ ```
+Then, edit the text to change the line that says `managed=false` to `managed=true`.
+
+Save and quit, then run...
+
+```Bash
+sudo reboot now
+```
+To restart the system.
+
+After logging back in...
+
+Now enter,
 
 ```Bash
 nmcli d
@@ -421,13 +457,15 @@ In my case this was `enp1s0`
 Then enter,
 
 ```Bash
-nmcli d con enp1s0
+sudo nmcli d con enp1s0
 ```
 replacing `enp1s0` with your ethernet device ID.
 
 Now you should have both the Ethernet and Wi-Fi as connected wireless interfaces.
 
 ### 2.2: Setting up Tailscale VPN
+
+***Not required but highly recomended as this allows you to remotely access your system, even on other networks***
 
 Now we will install Tailscale which is a VPN software that allows you to
 create your own private VPN network with your personal devices. This is recommended
@@ -569,9 +607,17 @@ to save the file press `:` to enter the vim commandline, and type in `wq!`
 Now run:
 
 ```Bash
+sudo apt install git
+```
+
+Which will install git, this allows us to download the source code for wsprdaemon to allow us to install it.
+
+Then run,
+```Bash
 cd ~
 git clone https://github.com/rrobinett/wsprdaemon.git
 cd wsprdaemon
+git checkout 3.3.1
 ./wsprdaemon.sh -V
 ```
 
