@@ -2,8 +2,44 @@
 
 <show-structure/>
 
-## 1: Install the Operating System
+## 0.5: BIOS Settings
+Before setting up the system with an operating system it is recomended to configure the following BIOS/Firmware settings to 
+allow better operation of the Beelink computer.
 
+<procedure title="Entering the BIOS Setup Screen" id="BIOS-id">
+    <step>Plug in the computer and connect and HDMI or Display Port between the computer
+            and your monitor.</step>
+    <step>Press the power button to turn on the PC, then quickly tap
+            <control>Delete</control> on the keyboard.</step>
+    <p>You should now be in the BIOS setup screen.</p>
+</procedure>
+
+<procedure title="Configuring the BIOS Setup" id="BIOS-config">
+    <step>Using the arrow keys, open the <ui-path>Advanced</ui-path> tab.</step>
+    <step>Move down to <ui-path>Smart Fan Function</ui-path>, and press <control>Enter</control> to 
+        enter the sub menu.</step>
+    <step>Select <ui-path>Smart CPU_Fan Mode</ui-path> using <control>Enter</control>, and move the cursor
+        up to <ui-path>Full on Mode</ui-path>. Now press <control>Enter</control> to select it.</step>
+    <step>Press <control>Escape</control> to exit the sub menus, until you reach the <ui-path>Advanced</ui-path> tab 
+        again.</step>
+    <step>Move down to <ui-path>AMD CBS</ui-path> and enter the sub menu.</step>
+    <step>Move to and select <ui-path>FCH Common Options</ui-path> </step>
+    <step>Now, move down to <ui-path>Ac Power Loss Options</ui-path> and press <control>Enter</control>.</step>
+    <step>Finally, press <control>Enter</control> over <ui-path>Ac Loss Control</ui-path>, and move the
+        cursor down to <ui-path>Always On</ui-path>. Then, hit <control>Enter</control> again to select it.</step>
+    <step>Move back to the <ui-path>Advanced</ui-path> tab using <control>Enter</control>.</step>
+    <step>Finally, move over to the <ui-path>Save & Exit</ui-path> tab, and move down 
+        to <ui-path>Save Changes and Exit</ui-path>.</step>
+    <step>Press <control>Enter</control> over <ui-path>Yes</ui-path>, to confirm changes.</step>
+    <p>This will configure the computer to automatically turn back on in the event of a power outtage, 
+        well as setting the internal fans to always full speed. (To prevent overheating issues)</p>
+
+
+
+
+</procedure>
+
+## 1: Install the Operating System
 
 First before we can set up any software we need to install the OS, in this case Ubuntu.
 
@@ -360,6 +396,14 @@ enter `y` and press enter.
 
 Wait a few minutes for the software to install.
 
+Now run the following commands to disable a system component called snap. This a type of software management tool that 
+we do not want running on our system since it will auto-update some programs which can cause issues with our automated scrips.
+
+```Bash
+sudo apt autoremove --purge snapd gnome-software-plugin-snap
+sudo apt-mark hold snapd
+```
+
 ### 2.1: Configuring Network for WPA2-Enterprise (University/Eduroam Wi-Fi)
 
 You may have connected the system to ethernet or for NJIT used the
@@ -391,6 +435,21 @@ Then enter the following
 ```bash
 ip a
 ```
+
+#### 2.1.1 Network-Manager Terminal UI [nmtui]
+The following is the configuration to setup and activate a WPA-2 Enterprise connection, however, depending on your network
+or personal prefrences it may be easier to use the **Terminal User Interface** version of network-manager. I will not explain this one 
+as going over the interface is a bit harder to do using text but it may be easier to understand how to use this interface as it is 
+very similar to the one used in the Operating System set up screen from Part 1.
+
+Launch Network-Manager TUI
+```Bash
+sudo nmtui
+```
+
+Otherwise, I recommend following the next steps, which describe using the Network-Manager Command Line Interface.
+
+#### 2.1.2 Network-Manager Command Line Interface [nmcli]
 
 The output should contain a few lines including `lo`, `enp1s0`, `wlo1`, or similar.
 
@@ -428,7 +487,7 @@ You should now be connected to the Wi-Fi.
 
 If you would also like to add Ethernet as a backup do the following.
 
-
+**Read this document if you have never used vi/vim before.** [Neovim Guide](NeoVim.md)
 
 ```bash
  sudo touch /etc/NetworkManager/conf.d/10-globally-managed-devices.conf
@@ -567,7 +626,15 @@ mkdir ~/.ssh
 
 Finally we can install [Wsprdaemon](https://github.com/rrobinett/wsprdaemon)
 
-First we want to configure our system to run sudo commands without requiring a password (this is why the ssh key is recommended).
+First lets install some prerequisite tools and utilities by running the following command. (Quite long so i recommend using SSH to allow pasting)
+
+```Bash
+sudo apt install btop nmap git tmux vim net-tools iputils-ping avahi-daemon libnss-mdns mdns-scan avahi-utils avahi-discover build-essential make cmake gcc libairspy-dev libairspyhf-dev libavahi-client-dev libbsd-dev libfftw3-dev libhackrf-dev libiniparser-dev libncurses5-dev libopus-dev librtlsdr-dev libusb-1.0-0-dev libusb-dev portaudio19-dev libasound2-dev uuid-dev rsync sox libsox-fmt-all opus-tools flac tcpdump libhdf5-dev libsamplerate-dev
+```
+
+Type `y` or select yes to any prompts that come up.
+
+Then, we want to configure our system to run sudo commands without requiring a password (this is why the ssh key is recommended).
 
 We need to install a text editor first, there are ones preinstalled but this is the one I recommend.
 
@@ -584,7 +651,9 @@ sudo nvim /etc/sudoers.d/wsprsudo
 ```
 
 This is a text editor called neovim, based on the vi and vim editors. It can be hard to use sometimes so don't be afraid
-to look up a vim guide if you get stuck.
+to look up a vim guide if you get stuck. Some helpful quick information is located in this guide...
+
+[Neovim Guide](NeoVim.md)
 
 By default, you are in *normal* mode which allows you to move around the cursor. Now press `i` to enter insert mode
 allowing you to type. Enter the following,
@@ -617,7 +686,6 @@ Then run,
 cd ~
 git clone https://github.com/rrobinett/wsprdaemon.git
 cd wsprdaemon
-git checkout 3.3.1
 ./wsprdaemon.sh -V
 ```
 
@@ -861,11 +929,133 @@ sudo reboot now
 ```
 
 This will restart the server and should end the ssh session, wait a few minutes then re-run this command on your computer
-to reconnect.
+to reconnect. (If using SSH)
 ```bash
 ssh wsprdaemon@sdrpc 
 ```
+
+#### 2.4.3: Configuring KA9Q-Radio
+
 Now that you are logged back into the server, run this command
+
+```Bash
+ls /etc/radio
+```
+
+If the commandline output includes a file named `radiod@rx888-wsprdaemon.conf`, Run this command. Otherwise skip to the 
+next command.
+
+```Bash
+sudo rm /etc/radio/radiod@rx888-wsprdaemon.conf
+```
+Which will remove the current configuration file.
+
+Then run,
+```Bash
+sudo touch /etc/radio/radiod@rx888-wsprdaemon.conf
+```
+Which will create a blank file in it's place.
+
+Now run the following command to edit the file.
+
+```Bash
+sudo nvim /etc/radio/radiod@rx888-wsprdaemon.conf
+```
+
+And enter the following text for the configuration file. 
+
+(using `i` to enter insert mode)
+
+```Bash
+[global]
+# these next two establish defaults for all demod sections
+hardware = rx888 # use built-in rx888 driver, configured in [rx888]
+status = hf.local       # DNS name for receiver status and commands
+samprate = 12000        # default output sample rate
+mode = usb              # default receive mode
+# rest are defaults
+#ttl = 1
+ttl = 0                 # Too many WD sites don't have IGMP aware ethernet swtiches, so don't send radiod multicast packets out the ethernet port.
+#fft-threads = 2
+#blocktime = 20 # allowable Opus block times: 2.5, 5, 10, 20, 40, 60, 80, 100, 120
+#overlap = 5 # don't change unless you know what you're doing
+#iface = enp1s0
+
+[rx888]
+device = "rx888" # required so it won't be seen as a demod section
+description = "K2MFF @FN20vr" # good to put callsign and antenna description in here
+# gain = 20 # dB
+# rest are defaults
+#description = "rx888"
+#number = 0
+samprate = 129600000     # Hz
+#samprate =   64800000     # 128 Msps will eventual burn out the stock RX888 Mk II, and this 64 Msps frees much CPU on older CPUs
+#calibrate = 0            # 1e-6 is +1 ppm
+#firmware = SDDC_FX3.img
+#queuedepth = 16          # buffers in USB queue
+#reqsize = 32             # size of each USB buffer in 16KB units
+#dither = no              # built-in A/D dither
+#rand = no                # Randomize A/D output bits to spread digital->analog crosstalk
+#att = 0                  # PE4312 digital attenuator, 0-31.5 dB in 0.5 dB steps
+#gainmode = high          # AD8370 VGA gain mode
+#gain = 1.5               # AD8370 VGA gain, -25 to +17 dB (low gain mode) or -8 to +34 dB (high gain mode)
+
+[WSPR]
+encoding=float
+# Bottom of 200 Hz WSPR segments on each band. Center is 1500 Hz higher
+# sample rate must be 12 kHz as required by wsprd
+disable = no
+data = wspr-pcm.local
+agc=0
+gain=0
+samprate = 12000
+mode = usb
+low=1300
+high=1700
+freq = "136k000 474k200 1m836600 3m568600 3m592600 5m287200 5m364700 7m038600 10m138700 13m553900 14m095600 18m104600 21m094600 24m924600 28m124600 50m293000""
+
+[FT8]
+disable = no
+data = ft8-pcm.local
+encoding = s16be
+mode = usb
+freq = "1m840000 3m573000 5m357000 7m074000 10m136000 14m074000 18m100000 21m074000 24m915000 28m074000 50m313000"
+# extras 144m174000
+# NOTE: be sure that frequencies are specified to the Hz or the PSKReporter uploader will get bad frequencies in the ftX.log files
+
+[FT4]
+disable = no
+data = ft4-pcm.local
+encoding = s16be
+mode = usb
+freq = "3m575000 7m047500 10m140000 14m080000 18m104000 21m140000 24m919000 28m180000 50m318000"
+# extras "144m170000"
+# NOTE: be sure that frequencies are specified to the Hz or the PSKReporter uploader will get bad frequencies in the ftX.log files
+
+[WWV-IQ]
+encoding=float
+disable=no
+data = wwv-iq.local
+agc=0
+gain=0
+samprate = 16k
+mode = iq
+freq = "60000 2500000 5000000 10000000 15000000 20000000 25000000 3330000 7850000 14670000"       ### Added the three CHU frequencies
+```
+
+Once this is done enter normal mode by pressing `Esc`, then save and quit using `:wq!` this time.
+
+Now run the following commands
+```Bash
+sudo systemctl enable radiod@rx888-wsprdaemon
+sudo systemctl enable ft8-decoded.service
+sudo systemctl enable ft4-decoded.service
+sudo reboot now
+```
+
+
+#### 2.4.4: Setting up the PSWS
+
 ```Bash
 wdg p
 ```
@@ -876,63 +1066,21 @@ At a certain point it may ask you to save an ssh key to the server,
 when it asks for the file location press `enter` to select the default,
 then select `enter` again twice to save it without a password.
 
-#### 2.4.4: Configuring KA9Q-Radio
+>
+> Additionally, you will be asked to enter the password to the PSWS Server `<Station-ID@pswsnetwork.caps.ua.edu`. This password is the Grape Token that was put in the wsprdaemon
+> config. `GRAPE_PSWS_TOKEN="t1q8kx36f18kz8c6g5k9"` 
+{style=warning}
+> 
+When you are asked for this just type in or paste the key itself eg. `t1q8kx36f18kz8c6g5k9`, note that you will not see the 
+text being entered as it is a password entry field. If you make a mistake you **Can** use backspace, but again you will not see
+any indication of text being deleted. (If you think you messed up just press backspace a bunch of times and try again)
 
-Once all the installation scripts finish and you can enter commands with the prompt `wsprdaemon@sdrpc:~/wsprdaemon$`
+
+
+Once all the installation scripts finish, and you can enter commands with the prompt `wsprdaemon@sdrpc:~/wsprdaemon$`
 again.
 
-Enter this line
-```Bash
-sudo nvim /etc/radio/radiod@rx888-wsprdaemon.conf
-```
 
-now using the arrow keys find the lines
-
-```Bash
-[FT8]
-disable = no
-data = ft8-pcm.local
-mode = usb
-freq = "1m840000 3m573000 5m357000 7m074000 10m136000 14m074000 18m100000 21m074000 24m915000 28m074000 50m313000"
-# extras 144m174000
-# NOTE: be sure that frequencies are specified to the Hz or the PSKReporter uploader will get bad frequencies in the ftX.log files
-
-[FT4]
-disable = no
-data = ft4-pcm.local
-mode = usb
-freq = "3m575000 7m047500 10m140000 14m080000 18m10k000 21m140000 24m919000 28m180000 50m318000"
-# extras "144m170000"
-# NOTE: be sure that frequencies are specified to the Hz or the PSKReporter uploader will get bad frequencies in the ftX.log files
-```
-
-and change the `disable = no` lines to `disable = yes`
-
-(using `i` to enter insert mode)
-
-Then, go down further to find this part.
-
-```Bash
-[WWV]
-disable = yes
-data = wwv-pcm.local
-mode = am
-freq = "60000 2500000 5000000 10000000 15000000 20000000 25000000 3330000 7850000 14670000"       ### Added the three CHU frequencies
-```
-and change the `disable = yes` to `disable = no`
-
-If you have trouble finding the lines you can search for them by going into normal mode with <shortcut>escape</shortcut> then enter
-`/WWV` to search for the WWV lines, then select <shortcut>enter</shortcut> to enter normal mode again. Same for the other lines
-`/FT8` to search for the section with the lines above.
-
-Once this is done enter normal mode, then save and quit using `:wq!` this time.
-
-Now run the following commands
-```Bash
-sudo systemctl enable radiod@rx888-wsprdaemon
-sudo systemctl enable ft8-decode.service
-sudo systemctl enable ft4-decode.service
-```
 now reboot with
 ```Bash
 sudo reboot now
@@ -956,6 +1104,10 @@ then when you can type again run,
 wda
 ```
 
+> **If you encounter any errors see the** [Operation Guide](Operation.md)
+>
+{style=note}
+
 Once you can type again, the server should be running. You can confirm this by running this command.
 ```Bash
 wds
@@ -965,7 +1117,8 @@ You should get an output like this.
 
 ![image_17.png](image_17.png)
 
-And if you go to a browser on your computer you should be able to type in this url [](http://sdrpc:8081/)
+And if you go to a browser on your computer you should be able to type in this url [](http://hostname:8081/) **replacing hostname with your server's
+hostname (the name that is after the @ in `wsprdaemon@hostname` on your server's prompt eg. `http://sdrpc:8081/` in my case)**
 
 Which should bring you to this interactive web page running locally on the server allowing you to view the signals it
 is decoding.
