@@ -7,4 +7,7 @@
                  start-page="wsprdaemon-install.md">
 
     <toc-element topic="wsprdaemon-install.md"/>
+    <toc-element topic="Updates.md"/>
+    <toc-element topic="NeoVim.md"/>
+    <toc-element topic="Operation.md"/>
 </instance-profile>
