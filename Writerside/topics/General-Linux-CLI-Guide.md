@@ -106,8 +106,7 @@ and `C:\Program Files` for 64-bit applications)
 
 Some programs that are installed by a user without administrative permissions will instead 
 store their executable file in `/usr/bin/` (Which is kind of like installing a program in windows for only one user vs system-wide which 
-will install the program into the user's appdata folder generally this folder is hidden from the user but can be accessed by typing in "%appdata%"
-as the directory path which will take them to `C:\Users\Username\appdata`)
+will install the program into the user's appdata folder)
 
 **Most files you may see that do not contain a file extension, are generally a program executable file on Linux. Although, executables
 could have any file extension but it is convention to leave out any extension to denote an executable.**
