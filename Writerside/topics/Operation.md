@@ -1,5 +1,7 @@
 # Operation
 
+<show-structure/>
+
 ## General Operation and Commands
 
 | Operation                                                                           | Command          | Extra Details                                                                                                           |
