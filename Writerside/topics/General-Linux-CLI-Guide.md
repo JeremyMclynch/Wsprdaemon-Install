@@ -1,5 +1,7 @@
 # General Linux-CLI Guide
 
+<show-structure/>
+
 ## Definitions and Background
 
 **Linux** generally refers to any operating system that uses the [Linux/GNU Kernel](https://www.gnu.org/gnu/linux-and-gnu.en.html) (**Kernel** being the most basic part

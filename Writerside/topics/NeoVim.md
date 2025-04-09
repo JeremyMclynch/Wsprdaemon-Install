@@ -1,5 +1,7 @@
 # NeoVim
 
+<show-structure/>
+
 > NeoVim is a command line based text editor that can be used to (as its name suggests) edit text in files located on a 
 > remote server. NeoVim is specifically based on an old program created for UNIX called `vi` which was later supersceded
 > by `vim` which added more features. This is a popular command line text editor as it is lightweight and available on 
