@@ -711,8 +711,14 @@ many more features we are not going to use as they are not relevant for the HamS
 #!/bin/bash
 #### The previous line signals to the vim editor that it should use its 'bash' editing mode when editing this file
 
-# Delay startup of WD.  Default is '0' == no delay
-WD_STARTUP_DELAY_SECS=0
+WD_CPU_CORES="8-15"
+RADIOD_CPU_CORES="0-7"
+
+KA9Q_RADIO_COMMIT="main"
+KA9Q_RUNS_ONLY_REMOTELY="no" 
+KA9Q_CONF_NAME="rx888-wsprdaemon"
+KA9Q_WEB_COMMIT_CHECK="main"
+KA9Q_WEB_TITLE="<Your Callsign>"
 
 ### Since these wav files are uncompressed audio they are quite large.  A 30 minute wav file which might contain a FST4W-1800 signal will be almost 50 MBytes.
 ### To avoid overflowing the ~/wsprdaemon/wav-archive.d file system, if that wave file will fill more than 75% of the file system, then some of the oldest wav files are deleted first
@@ -741,7 +747,6 @@ GRAPE_PSWS_TOKEN="<TokenFromPSWSsite>"          ### This value is the "token" cr
 ##### After those variables are defined, the WD user must register this server with the GRAPE server by executing 'wdg p'.  This command needs to be run successfully only once after which automatic uploads
 ##### to the GRAPE server are enabled.
 
-declare TURN_ISLAND_LP_AND_SHELF_FILTER_VALUES="2200:19.3,630:19.3,160:18.3,80:16,80eu:16,60:13.5,60eu:13.5,40:11.5,30:8.4,22:7,20:6.1,17:4.6,15:3.9,12:3.5,10:4.7"
 
 declare RECEIVER_LIST=(
         "KA9Q_0                     wspr-pcm.local     <Your Callsign>         <Your Grid>    NULL"
@@ -833,10 +838,17 @@ The configuration file should look something like this,
 
 ```bash
 #!/bin/bash
+#
 #### The previous line signals to the vim editor that it should use its 'bash' editing mode when editing this file
 
-# Delay startup of WD.  Default is '0' == no delay
-WD_STARTUP_DELAY_SECS=0
+WD_CPU_CORES="8-15"
+RADIOD_CPU_CORES="0-7"
+
+KA9Q_RADIO_COMMIT="main"
+KA9Q_RUNS_ONLY_REMOTELY="no" 
+KA9Q_CONF_NAME="rx888-wsprdaemon"
+KA9Q_WEB_COMMIT_CHECK="main"
+KA9Q_WEB_TITLE="NJIT-K2MFF @FN20vr"
 
 ### Since these wav files are uncompressed audio they are quite large.  A 30 minute wav file which might contain a FST4W-1800 signal will be almost 50 MBytes.
 ### To avoid overflowing the ~/wsprdaemon/wav-archive.d file system, if that wave file will fill more than 75% of the file system, then some of the oldest wav files are deleted first
@@ -865,7 +877,6 @@ GRAPE_PSWS_ID="S000194_190"                         ### If this and GRAPE_PSWS_T
 ##### After those variables are defined, the WD user must register this server with the GRAPE server by executing 'wdg p'.  This command needs to be run successfully only once after which automatic uploads
 ##### to the GRAPE server are enabled.
 
-declare TURN_ISLAND_LP_AND_SHELF_FILTER_VALUES="2200:19.3,630:19.3,160:18.3,80:16,80eu:16,60:13.5,60eu:13.5,40:11.5,30:8.4,22:7,20:6.1,17:4.6,15:3.9,12:3.5,10:4.7"
 
 declare RECEIVER_LIST=(
         "KA9Q_0                     wspr-pcm.local     K2MFF         FN20vp    NULL"
@@ -886,7 +897,8 @@ Once you have your configuration written, if you would like to directly edit the
 nvim ~/wsprdaemon/wsprdaemon.conf
 ```
 
-But if you would rather copy and paste your configuration file from your computer to the server I would use the following commands
+But if you would rather copy and paste your configuration file from your computer to the server I would use the following commands 
+which removes the premade template and the next one allows you to create a fresh one.
 
 ```Bash
 rm ~/wsprdaemon/wsprdaemon.conf
@@ -920,11 +932,13 @@ cd ~/wsprdaemon
 ```
 
 This will start installing a lot of packages and will take quite a while. Once it is done it should say something like
-"ka9q-radio added your user to the radio group, log out and log back in to save changes"
+"ka9q-radio added your user to the radio group, log out and log back in to save changes" 
 
-Once this shows up and the prompt `wsprdaemon@sdrpc:~/wsprdaemon$` is on the screen you can reboot the computer by entering
+Or it may error out mentionioning something about "Update_ini_file_section_variable /etc/radio ....." if this happens attempt to run `./wsprdaemon.sh -V` again. 
 
-```Bash
+If the error occurs again, reboot the computer with 
+
+```bash
 sudo reboot now
 ```
 
@@ -934,116 +948,132 @@ to reconnect. (If using SSH)
 ssh wsprdaemon@sdrpc 
 ```
 
-#### 2.4.3: Configuring KA9Q-Radio
+Then log back in, and run `./wsprdaemon.sh -V` again.
 
-Now that you are logged back into the server, run this command
+Now at some point you should get a prompt saying that the RX888 MkII is not attached to a USB port. 
 
+#### 2.4.4: Setting the GPS clock speed
+
+When you get this message, plug in the RX888 to one of the USB 3.0/Super Speed ports (Blue USB ports), and make sure the 
+GPS clock is connected to the RX-888 SMA input, and plug the GPS clock USB port into one of the USB ports on the beelink.
+
+
+Now run move back to the home directory by entering,
 ```Bash
-ls /etc/radio
+cd ~
 ```
 
-If the commandline output includes a file named `radiod@rx888-wsprdaemon.conf`, Run this command. Otherwise skip to the 
-next command.
+and run the following command.
 
 ```Bash
-sudo rm /etc/radio/radiod@rx888-wsprdaemon.conf
+git clone https://github.com/simontheu/lbe-1420.git
 ```
-Which will remove the current configuration file.
 
-Then run,
-```Bash
-sudo touch /etc/radio/radiod@rx888-wsprdaemon.conf
-```
-Which will create a blank file in it's place.
-
-Now run the following command to edit the file.
+now these,
 
 ```Bash
-sudo nvim /etc/radio/radiod@rx888-wsprdaemon.conf
+cd lbe-1420
+gcc -o lbe-142x lbe-142x.c
 ```
 
-And enter the following text for the configuration file. 
-
-(using `i` to enter insert mode)
+then run this to list some of the devices plugged into the computer. (Keyboards will show up if they are plugged in, if not it will probably only show the GPS clock)
 
 ```Bash
-[global]
-# these next two establish defaults for all demod sections
-hardware = rx888 # use built-in rx888 driver, configured in [rx888]
-status = hf.local       # DNS name for receiver status and commands
-samprate = 12000        # default output sample rate
-mode = usb              # default receive mode
-# rest are defaults
-#ttl = 1
-ttl = 0                 # Too many WD sites don't have IGMP aware ethernet swtiches, so don't send radiod multicast packets out the ethernet port.
-#fft-threads = 2
-#blocktime = 20 # allowable Opus block times: 2.5, 5, 10, 20, 40, 60, 80, 100, 120
-#overlap = 5 # don't change unless you know what you're doing
-#iface = enp1s0
-
-[rx888]
-device = "rx888" # required so it won't be seen as a demod section
-description = "K2MFF @FN20vr" # good to put callsign and antenna description in here
-# gain = 20 # dB
-# rest are defaults
-#description = "rx888"
-#number = 0
-samprate = 129600000     # Hz
-#samprate =   64800000     # 128 Msps will eventual burn out the stock RX888 Mk II, and this 64 Msps frees much CPU on older CPUs
-#calibrate = 0            # 1e-6 is +1 ppm
-#firmware = SDDC_FX3.img
-#queuedepth = 16          # buffers in USB queue
-#reqsize = 32             # size of each USB buffer in 16KB units
-#dither = no              # built-in A/D dither
-#rand = no                # Randomize A/D output bits to spread digital->analog crosstalk
-#att = 0                  # PE4312 digital attenuator, 0-31.5 dB in 0.5 dB steps
-#gainmode = high          # AD8370 VGA gain mode
-#gain = 1.5               # AD8370 VGA gain, -25 to +17 dB (low gain mode) or -8 to +34 dB (high gain mode)
-
-[WSPR]
-encoding=float
-# Bottom of 200 Hz WSPR segments on each band. Center is 1500 Hz higher
-# sample rate must be 12 kHz as required by wsprd
-disable = no
-data = wspr-pcm.local
-agc=0
-gain=0
-samprate = 12000
-mode = usb
-low=1300
-high=1700
-freq = "136k000 474k200 1m836600 3m568600 3m592600 5m287200 5m364700 7m038600 10m138700 13m553900 14m095600 18m104600 21m094600 24m924600 28m124600 50m293000""
-
-[FT8]
-disable = no
-data = ft8-pcm.local
-encoding = s16be
-mode = usb
-freq = "1m840000 3m573000 5m357000 7m074000 10m136000 14m074000 18m100000 21m074000 24m915000 28m074000 50m313000"
-# extras 144m174000
-# NOTE: be sure that frequencies are specified to the Hz or the PSKReporter uploader will get bad frequencies in the ftX.log files
-
-[FT4]
-disable = no
-data = ft4-pcm.local
-encoding = s16be
-mode = usb
-freq = "3m575000 7m047500 10m140000 14m080000 18m104000 21m140000 24m919000 28m180000 50m318000"
-# extras "144m170000"
-# NOTE: be sure that frequencies are specified to the Hz or the PSKReporter uploader will get bad frequencies in the ftX.log files
-
-[WWV-IQ]
-encoding=float
-disable=no
-data = wwv-iq.local
-agc=0
-gain=0
-samprate = 16k
-mode = iq
-freq = "60000 2500000 5000000 10000000 15000000 20000000 25000000 3330000 7850000 14670000"       ### Added the three CHU frequencies
+ls -l /dev/hidraw*
 ```
 
-Once this is done enter normal mode by pressing `Esc`, then save and quit using `:wq!` this time.
+now take note of how many `/dev/hidraw` devices there are.
+
+now run this command, replacing `.../hidraw0/...` with ones from your list.
+
+```Bash
+cat /sys/class/hidraw/hidraw0/device/uevent
+```
+
+You know you have the correct device if it outputs something similar to this,
+```
+    DRIVER=hid-generic
+    HID_ID=0003:00001DD2:00002443
+    HID_NAME=Leo Bodnar Electronics LBE-1420 GPS Locked Clock Source
+    HID_PHYS=usb-0000:02:00.0-2.1/input2
+    HID_UNIQ=0673ED0E4101
+    MODALIAS=hid:b0003g0001v00001DD2p00002443
+```
+
+If it does not, try again but use a different `hidraw` number.
+
+Once you identify the correct device number, run this command replacing the `/dev/hidraw0` with what ever number you 
+found was correct.
+
+```Bash
+sudo ./lbe-142x /dev/hidraw0 --f1 27000000 --blink1
+```
+
+Once you run this command, the LED on the GPS device should blink rapidly a few times, if this happens the command was 
+sent correctly. This sets the clock to 27MHz output which is the required frequency for the RX-888.
+
+
+
+
+
+
+#### 2.4.4: Setting up the PSWS
+
+Now run 
+
+```Bash
+cd ~/wsprdaemon
+./wsprdaemon.sh -V
+```
+
+Now, you should not get any more errors but you should get a prompt asking `Enter file in which to save the key (/home/wsprdaemon/.ssh/id_ed25519):`
+
+When you get here, press <control>Enter</control> 3 or 4 times, including when it asks for a *passphrase*, however, do not click enter if it asks for a *Password* to login to 
+an account through ssh.
+
+If you are lucky it will ask you for an SSH password to log into the PSWS server, however, on the current release as of writing this there is a bug that is not
+correctly setting up auto logon for the PSWS server at the University of Alabama. If this does happen, put in the PSWS Token you put in the wsprdaemon config earlier 
+which is the password to the server. Eg.`GRAPE_PSWS_TOKEN="t1q8kx36f18kz8c6g5k9"` But just the part in quotes.
+
+If this did not happen go to the next section. Otherwise, skip the next section.  
+
+##### 2.4.4.5 Fixing the PSWS Autologin
+
+Enter the following command to print out the public key of the SSH key you just made.
+
+```Bash
+cat ~/.ssh/id_ed25519.pub
+```
+
+Copy down the output to a text file or notepad file on your personal computer. It should look something like this,
+
+```Bash
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIA+K11alPxGaRnf4F/K2o7qKRMfqxyf5agBUo4myPuwH wsprdaemon@njit-bl-1
+```
+
+Now run the following command to ssh into the PSWS server manually,
+```Bash
+wdssp
+```
+
+Enter yes if it asks for fingerprint verification, then when it asks for a password enter the PSWS token from the 
+wsprdaemon config before. Eg. `GRAPE_PSWS_TOKEN="t1q8kx36f18kz8c6g5k9"` But just the part in quotes.
+
+Now once you are logged into the PSWS server run this command, make sure you use `vi` not `nvim` since that is what we normally have been using.
+
+```Bash
+vi ~/.ssh/authorized_keys
+```
+
+Then, using *i* to enter insert mode, and paste or type in the public key from before that begins with `ssh-ed25519 .....`
+
+now press escape to exit insert mode and hit `:` and type in `wq` to save and quit.
+
+Now type in `exit` to kill the connection and go back to the beelink system. Then, type in `wdssp` one more time to verify that
+the computer does not prompt you for a password, if it does then you need to try to retrace the steps and try again.
+
+#### 2.4.4: Setting up the PSWS (continued)
+
 
 Now run the following commands
 ```Bash
@@ -1053,56 +1083,23 @@ sudo systemctl enable ft4-decoded.service
 sudo reboot now
 ```
 
+Run `cd wsprdaemon` and `./wsprdaemon.sh -V` one more time, and you should get the version number printed out into the console.
 
-#### 2.4.4: Setting up the PSWS
+Once this happens we can start wsprdaemon,
 
+Now run, 
+
+```Bash
+wd -A
+```
+
+To start wsprdaemon and add it as a login item to start when the server turns on.
+
+Then run this to initialize the PSWS recording,
 ```Bash
 wdg p
 ```
 
-This will also install even more packages and take a while.
-
-At a certain point it may ask you to save an ssh key to the server,
-when it asks for the file location press `enter` to select the default,
-then select `enter` again twice to save it without a password.
-
->
-> Additionally, you will be asked to enter the password to the PSWS Server `<Station-ID@pswsnetwork.caps.ua.edu`. This password is the Grape Token that was put in the wsprdaemon
-> config. `GRAPE_PSWS_TOKEN="t1q8kx36f18kz8c6g5k9"` 
-{style=warning}
-> 
-When you are asked for this just type in or paste the key itself eg. `t1q8kx36f18kz8c6g5k9`, note that you will not see the 
-text being entered as it is a password entry field. If you make a mistake you **Can** use backspace, but again you will not see
-any indication of text being deleted. (If you think you messed up just press backspace a bunch of times and try again)
-
-
-
-Once all the installation scripts finish, and you can enter commands with the prompt `wsprdaemon@sdrpc:~/wsprdaemon$`
-again.
-
-
-now reboot with
-```Bash
-sudo reboot now
-```
-You will be kicked off the ssh session again, wait a few minutes and run the ssh connection command again.
-```Bash
-ssh wsprdaemon@sdrpc
-```
-
-#### 1.5 Final Steps
-
-Now that you are connected again, run two more commands.
-
-```Bash
-wdz
-```
-
-then when you can type again run,
-
-```Bash
-wda
-```
 
 > **If you encounter any errors see the** [Operation Guide](Operation.md)
 >
@@ -1118,7 +1115,7 @@ You should get an output like this.
 ![image_17.png](image_17.png)
 
 And if you go to a browser on your computer you should be able to type in this url [](http://hostname:8081/) **replacing hostname with your server's
-hostname (the name that is after the @ in `wsprdaemon@hostname` on your server's prompt eg. `http://sdrpc:8081/` in my case)**
+hostname (the name that is after the @ in `wsprdaemon@hostname` on your server's prompt eg. `http://njit-bl-1:8081/` in my case)**
 
 Which should bring you to this interactive web page running locally on the server allowing you to view the signals it
 is decoding.
