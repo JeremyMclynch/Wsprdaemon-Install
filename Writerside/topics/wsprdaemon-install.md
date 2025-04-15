@@ -41,6 +41,12 @@ allow better operation of the Beelink computer.
 
 ## 1: Install the Operating System
 
+### Youtube Video Walkthrough Link
+[Youtube Video Walkthrough Link](https://youtu.be/JZvuR3WRL-Q)
+This is a link to a video walkthrough, however, I recommend to using primarily this document as I speed through
+the setup pretty quick.
+
+
 First before we can set up any software we need to install the OS, in this case Ubuntu.
 
 Go to this download link and download the newest version of Ubuntu Server, for my installation I am using 24.04.1
@@ -351,7 +357,7 @@ You will next see a screen that may or may not list third party
 drivers, select any if applicable and select continue.
 
 The next screen will give you several extra software that can be installed
-on the system, these should not be needed so you can select done.
+on the system, these should not be installed so you can select done.
 
 The system will now start installing, this processes may take 5-10 minutes.
 
