@@ -427,13 +427,11 @@ sudo apt install network-manager
 Once the package has installed enter the following.
 
 ```bash
-sudo sytemctl disable systemd-networkd.service
+sudo sytemctl disable --now systemd-networkd.service
 sudo systemctl mask systemd-networkd.service
-sudo systemctl stop systemd-networkd.service
 
-sudo systemctl disable systemd-networkd.socket
+sudo systemctl disable --now systemd-networkd.socket
 sudo systemctl mask systemd-networkd.socket
-sudo systemctl stop systemd-networkd.socket
 ```
 
 Then enter the following
@@ -716,58 +714,53 @@ many more features we are not going to use as they are not relevant for the HamS
 ```bash
 #!/bin/bash
 #### The previous line signals to the vim editor that it should use its 'bash' editing mode when editing this file
+#!/bin/bash
 
-WD_CPU_CORES="8-15"
-RADIOD_CPU_CORES="0-7"
+### These first two bash variables *must* be changed from their default values.  
+### To do so, uncomment the following two lines by removing the leading '#' and change the "<....>" fields
+WSPRNET_REPORTER_ID="<YOUR_REPORTER_ID>" #Ex. WSPRNET_REPORTER_ID="K2MFF" (NJIT's FCC Callsign)
+REPORTER_GRID="<YOUR_GRID>" #Ex. REPORTER_GRID="FN20vr" (NJIT's GRID Location)
 
-KA9Q_RADIO_COMMIT="main"
-KA9Q_RUNS_ONLY_REMOTELY="no" 
-KA9Q_CONF_NAME="rx888-wsprdaemon"
-KA9Q_WEB_COMMIT_CHECK="main"
-KA9Q_WEB_TITLE="<Your Callsign>"
 
-### Since these wav files are uncompressed audio they are quite large.  A 30 minute wav file which might contain a FST4W-1800 signal will be almost 50 MBytes.
-### To avoid overflowing the ~/wsprdaemon/wav-archive.d file system, if that wave file will fill more than 75% of the file system, then some of the oldest wav files are deleted first
-ARCHIVE_WAV_FILES="yes"
+WSPRNET_REPORTER_ID="${WSPRNET_REPORTER_ID-<NOT_DEFINED>}"           ### The ID of spots uploaded to wsprnet.org by this site
+REPORTER_GRID="${REPORTER_GRID-<NOT_DEFINED>}"
+ANTENNA_DESCRIPTION="<NOT_DEFINED>"   ### If defined, this is included in the reports to PSKReporter e.g '80m Dipole' and displayed on the KA9Q-web page
 
-IGNAL_LEVEL_UPLOAD="yes"          ### Whether and how to upload extended spots to wsprdaemon.org.  WD always attempts to upload spots to wsprnet.org
-SIGNAL_LEVEL_UPLOAD_MODE="noise"    ### SIGNAL_LEVEL_UPLOAD="no"         => (Default) Only upload spots directly to wsprnet.org
-                                    ### SIGNAL_LEVEL_UPLOAD_MODE="noise" => In addition, upload extended spots and noise data to wsprdaemon.org
-                                    ### SIGNAL_LEVEL_UPLOAD_MODE="proxy" => Don't directly upload spots to wsprdaemon.org.  Instead, after uploading extended spots and noise data to wsprdaemon.org have it regenerate and upload those spots to wsprnet.org
-                                    ###                                     This mode minimizes the use of Internet bandwidth, but makes getting spots to wsprnet.org dependent upon the wsprdameon.org services.
+KA9Q_WEB_TITLE="${WSPRNET_REPORTER_ID}_@${REPORTER_GRID}_${ANTENNA_DESCRIPTION}"
 
-# If SIGNAL_LEVEL_UPLOAD in NOT "no", then you must modify SIGNAL_LEVEL_UPLOAD_ID from "K2MFF" to your call sign.  SIGNAL_LEVEL_UPLOAD_ID cannot include '/
-SIGNAL_LEVEL_UPLOAD_ID="<Your Callsign>"     ### The name put in upload log records, the title bar of the graph, and the name used to view spots and noise at that server.
-SIGNAL_LEVEL_UPLOAD_GRAPHS="yes"   ### If this variable is defined as "yes" AND SIGNAL_LEVEL_UPLOAD_ID is defined, then FTP graphs of the last 24 hours to http://wsprdaemon.org/graphs/SIGNAL_LEVEL_UPLOAD_ID
-SIGNAL_LEVEL_LOCAL_GRAPHS="yes"    ### If this variable is defined as "yes" AND SIGNAL_LEVEL_UPLOAD_ID is defined, then make graphs visible at http://localhost/
+# WD stations contirbuting to the HamSCI.org Personal Space Weather Project obtain these values from their dashboard at https://pswsnetwork.caps.ua.edu
+PSWS_STATION_ID="<PSWS_STATION_ID>" #Ex. PSWS_STATION_ID="S000333"
+PSWS_DEVICE_ID="<PSWS_DEVICE_ID>" #Ex. PSWS_DEVICE_ID="352"
 
-KA9Q_RUNS_ONLY_REMOTELY="no"         ### If "yes" then WD will not install and configure its own copy of KA9Q-radio and thus assumes the user has installed and configured it him/her self.
+## The default is to upload extented spot and background noise level data to wsprdaemon.org.  These are small files, so they add little to the site's Internet bandwidth usage
+# SIGNAL_LEVEL_UPLOAD="no"
 
-###### These two variables need to be defined in order to enable this WD GRAPE service:
-GRAPE_PSWS_ID="<Your Station ID>_<Your Instrument ID>"          ### If this and GRAPE_PSWS_TOKEN are both defined, then each day soon after 00:00 UDT WD will upload the previous day's 24_hour_10sps-iq.wav file
-                                                    ### GRAPE_PSWS_ID has the form <SITE_ID>_<INSTRUMENT_ID>,  where those values are obtained from a PSWS user account which assigns these values for
-                                                    ### this site+receiver.  That PSWS site is at https://pswsnetwork.caps.ua.edu/home
-                                                    ### SITE_ID has the form 'S000nnn' while INSTRUMENT has the form 'NNN'
-GRAPE_PSWS_TOKEN="<TokenFromPSWSsite>"          ### This value is the "token" created for that user account by the PSWS server.  It is a very long string with 0-9 and a-z characters in it
-                                                    ### Together GRAPE_PSWS_ID + GRAPE_PSWS_PASSWORD are the user+password used to authenticate rsync access to  WD1/grape.wsprdaemon.org
-##### After those variables are defined, the WD user must register this server with the GRAPE server by executing 'wdg p'.  This command needs to be run successfully only once after which automatic uploads
-##### to the GRAPE server are enabled.
-
+## If "yes" the site uploads a 150 KByte .png file to wsprnet.org where it can be viewed at http://wsprdaemon.org/graphs/${WSPRNET_REPORTER_ID}/
+## Since better, configurable Grafana graphs are available from the wsprdeamon.org, to conserve your site's Internet usage I now discourage the use of this feature
+#SIGNAL_LEVEL_UPLOAD_GRAPHS="yes"
 
 declare RECEIVER_LIST=(
-        "KA9Q_0                     wspr-pcm.local     <Your Callsign>         <Your Grid>    NULL"
-        "KA9Q_0_WWV                   wwv-iq.local     <Your Callsign>         <Your Grid>    NULL"        
+        "KA9Q_0                     wspr-pcm.local     ${WSPRNET_REPORTER_ID}        ${REPORTER_GRID}    <SDR_PASSWORD_IF_NEEDED>"
+        "KA9Q_0_WWV                   wwv-iq.local     ${WSPRNET_REPORTER_ID}        ${REPORTER_GRID}    <SDR_PASSWORD_IF_NEEDED>"
 )
 
-declare WSPR_SCHEDULE=(
-    "00:00   KA9Q_0,2200,W2:F2:F5:F15:F30  KA9Q_0,630,W2:F2:F5  KA9Q_0,160,W2:F2:F5   KA9Q_0,80,W2:F2:F5    KA9Q_0,80eu,W2:F2:F5  KA9Q_0,60,W2:F2:F5  KA9Q_0,60eu,W2:F2:F5  KA9Q_0,40,W2:F2:F5
-             KA9Q_0,30,W2:F2:F5            KA9Q_0,22,W2         KA9Q_0,20,W2:F2:F5    KA9Q_0,17,W2:F2:F5    KA9Q_0,15,W2:F2:F5    KA9Q_0,12,W2:F2:F5  KA9Q_0,10,W2:F2:F5
-             KA9Q_0_WWV,WWV_2_5,I1         KA9Q_0_WWV,WWV_5,I1  KA9Q_0_WWV,WWV_10,I1  KA9Q_0_WWV,WWV_15,I1  KA9Q_0_WWV,WWV_20,I1  KA9Q_0_WWV,WWV_25,I1
-             KA9Q_0_WWV,CHU_3,I1           KA9Q_0_WWV,CHU_7,I1  KA9Q_0_WWV,CHU_14,I1"
+### Here are two examples of WSPR_SCHEDULEs.  Much more complex SDR configurations and schedules are desribed in wd_template_full.conf
+declare WSPR_SCHEDULE_only_rx888=(
+    "00:00             KA9Q_0,2200,W2:F2:F5:F15:F30  KA9Q_0,630,W2:F2:F5  KA9Q_0,160,W2:F2:F5   KA9Q_0,80,W2:F2:F5  KA9Q_0,80eu,W2:F2:F5  KA9Q_0,60,W2:F2:F5  KA9Q_0,60eu,W2:F2:F5  KA9Q_0,40,W2:F2:F5
+                       KA9Q_0,30,W2:F2:F5            KA9Q_0,22,W2         KA9Q_0,20,W2:F2:F5    KA9Q_0,17,W2:F2:F5  KA9Q_0,15,W2:F2:F5    KA9Q_0,12,W2:F2:F5  KA9Q_0,10,W2:F2:F5    KA9Q_0,6,W2:F2:F5
+
+                       KA9Q_0_WWV,WWVB,I1            KA9Q_0_WWV,WWV_2_5,I1  KA9Q_0_WWV,WWV_5,I1  KA9Q_0_WWV,WWV_10,I1   KA9Q_0_WWV,WWV_15,I1  KA9Q_0_WWV,WWV_20,I1  KA9Q_0_WWV,WWV_25,I1
+                       KA9Q_0_WWV,CHU_3,I1           KA9Q_0_WWV,CHU_7,I1    KA9Q_0_WWV,CHU_14,I1"
 )
+
+### Configure the Kiwi in 8 channel mode and this WSPR_SCHEDULE configuration will use the 6 audio-only Kiwi channels to record spots on the most trafficed WSPR bands 
+###    while leaving the 2 Kiwi waterfall channels free for listeners
+
+### Default to use the WSPR_SCHEDULE_only_rx888 schedule
+declare WSPR_SCHEDULE=( "${WSPR_SCHEDULE_only_rx888[@]}" )
 ```
 
-On the line `SIGNAL_LEVEL_UPLOAD_ID="<Your Callsign>"`, replace the `<Your Callsign>` part inside the Quotes with your FCC registered Callsign. If you do not have one as far as I understand it
+On the line `WSPRNET_REPORTER_ID="<YOUR_REPORTER_ID>"`, replace the `"<YOUR_REPORTER_ID>"` part inside the Quotes with your FCC registered Callsign. If you do not have one as far as I understand it
 if you are part of a university you can use the callsign registered to your university, or if none at all a short nickname. As we are not transmitting any signals we are not required to have a
 FCC registered amateur radio licence, however, I am not sure what HamSCI would prefer.
 
@@ -784,7 +777,16 @@ global coordinates like `FN20vp` for NJIT in Newark, NJ.
 
 #### 2.4.2: Setting Up PSWS Account
 
-For these two sections `GRAPE_PSWS_ID="<Your Station ID>_<Your Instrument ID>"` and `GRAPE_PSWS_TOKEN="<TokenFromPSWSsite>"`, you need to make an account at [Personal Space Weather Station
+>As of January 2026 the PSWS website is still underconstruction and is having issues with setting up new server/station accounts for the database server.
+> Due to this if you make an account and station now you must email `wdengelke@retiree.ua.edu` with the SSH public key that will be generated later in this document (or you can generate a new one)
+> and let him know your station details.
+{style=note}
+
+> **For Physics 450 Students at NJIT there is premade server credentials that have been setup for your use
+> please contact Jeremy McLynch `jmm277@njit.edu` to request the credentials and skip to section 2.4.3**
+{style=warning}
+> 
+For these two sections `GRAPE_PSWS_ID="<PSWS_STATION_ID>` and `PSWS_DEVICE_ID="<PSWS_DEVICE_ID>"`, you need to make an account at [Personal Space Weather Station
 Central Control System](https://pswsnetwork.caps.ua.edu/signup/) website. Then create a station in the [Station Tab](https://pswsnetwork.caps.ua.edu/stations/stations/) and click the `Add New Station`
 button.
 
@@ -833,68 +835,56 @@ Then, add the instrument and take note of the instrument ID.
 
 #### 2.4.3: Finishing the Configuration File
 
-Now go back to the config file and change the `GRAPE_PSWS_ID="<Your Station ID>_<Your Instrument ID>"` line to the numbers you added.
+Now go back to the config file and change the `GRAPE_PSWS_ID="<PSWS_STATION_ID>` and `PSWS_DEVICE_ID="<PSWS_DEVICE_ID>"` lines to the numbers you added.
 
-For example with NJIT's system `GRAPE_PSWS_ID="S000194_190"`.
-
-Then, add the token on the `GRAPE_PSWS_TOKEN="<TokenFromPSWSsite>"` line.
-Which will look something like this `GRAPE_PSWS_TOKEN="t1q8kx36f18kz8c6g5k9"` (Note this is not my token)
 
 The configuration file should look something like this,
 
 ```bash
 #!/bin/bash
-#
-#### The previous line signals to the vim editor that it should use its 'bash' editing mode when editing this file
 
-WD_CPU_CORES="8-15"
-RADIOD_CPU_CORES="0-7"
+### These first two bash variables *must* be changed from their default values.  
+### To do so, uncomment the following two lines by removing the leading '#' and change the "<....>" fields
+WSPRNET_REPORTER_ID="K2MFF"
+REPORTER_GRID="FN20vr"
 
-KA9Q_RADIO_COMMIT="main"
-KA9Q_RUNS_ONLY_REMOTELY="no" 
-KA9Q_CONF_NAME="rx888-wsprdaemon"
-KA9Q_WEB_COMMIT_CHECK="main"
-KA9Q_WEB_TITLE="NJIT-K2MFF @FN20vr"
+### If you want to give Wspredaemon devlopers remote access to your server, obtain a RAC number, uncomment the following line and replace <RAC_INTEGER_ID> with that number
+### Developers will also see the login name and password of the Linux account which runs WD.  'RAC' is the acronym for 'Remote Access Channel' 
+# RAC=<RAC_INTEGER_ID>
 
-### Since these wav files are uncompressed audio they are quite large.  A 30 minute wav file which might contain a FST4W-1800 signal will be almost 50 MBytes.
-### To avoid overflowing the ~/wsprdaemon/wav-archive.d file system, if that wave file will fill more than 75% of the file system, then some of the oldest wav files are deleted first
-ARCHIVE_WAV_FILES="yes"
+WSPRNET_REPORTER_ID="${WSPRNET_REPORTER_ID-<NOT_DEFINED>}"           ### The ID of spots uploaded to wsprnet.org by this site
+REPORTER_GRID="${REPORTER_GRID-<NOT_DEFINED>}"
+ANTENNA_DESCRIPTION="DXE-RF-PRO-1B Active Loop Antenna"   ### If defined, this is included in the reports to PSKReporter e.g '80m Dipole' and displayed on the KA9Q-web page
 
-IGNAL_LEVEL_UPLOAD="yes"          ### Whether and how to upload extended spots to wsprdaemon.org.  WD always attempts to upload spots to wsprnet.org
-SIGNAL_LEVEL_UPLOAD_MODE="noise"    ### SIGNAL_LEVEL_UPLOAD="no"         => (Default) Only upload spots directly to wsprnet.org
-                                    ### SIGNAL_LEVEL_UPLOAD_MODE="noise" => In addition, upload extended spots and noise data to wsprdaemon.org
-                                    ### SIGNAL_LEVEL_UPLOAD_MODE="proxy" => Don't directly upload spots to wsprdaemon.org.  Instead, after uploading extended spots and noise data to wsprdaemon.org have it regenerate and upload those spots to wsprnet.org
-                                    ###                                     This mode minimizes the use of Internet bandwidth, but makes getting spots to wsprnet.org dependent upon the wsprdameon.org services.
+KA9Q_WEB_TITLE="${WSPRNET_REPORTER_ID}_@${REPORTER_GRID}_${ANTENNA_DESCRIPTION}"
 
-# If SIGNAL_LEVEL_UPLOAD in NOT "no", then you must modify SIGNAL_LEVEL_UPLOAD_ID from "K2MFF" to your call sign.  SIGNAL_LEVEL_UPLOAD_ID cannot include '/
-SIGNAL_LEVEL_UPLOAD_ID="K2MFF"     ### The name put in upload log records, the title bar of the graph, and the name used to view spots and noise at that server.
-SIGNAL_LEVEL_UPLOAD_GRAPHS="yes"   ### If this variable is defined as "yes" AND SIGNAL_LEVEL_UPLOAD_ID is defined, then FTP graphs of the last 24 hours to http://wsprdaemon.org/graphs/SIGNAL_LEVEL_UPLOAD_ID
-SIGNAL_LEVEL_LOCAL_GRAPHS="yes"    ### If this variable is defined as "yes" AND SIGNAL_LEVEL_UPLOAD_ID is defined, then make graphs visible at http://localhost/
+# WD stations contirbuting to the HamSCI.org Personal Space Weather Project obtain these values from their dashboard at https://pswsnetwork.caps.ua.edu
+PSWS_STATION_ID="S000305"
+PSWS_DEVICE_ID="346"
 
-KA9Q_RUNS_ONLY_REMOTELY="no"         ### If "yes" then WD will not install and configure its own copy of KA9Q-radio and thus assumes the user has installed and configured it him/her self.
+## The default is to upload extented spot and background noise level data to wsprdaemon.org.  These are small files, so they add little to the site's Internet bandwidth usage
+# SIGNAL_LEVEL_UPLOAD="no"
 
-###### These two variables need to be defined in order to enable this WD GRAPE service:
-GRAPE_PSWS_ID="S000194_190"                         ### If this and GRAPE_PSWS_TOKEN are both defined, then each day soon after 00:00 UDT WD will upload the previous day's 24_hour_10sps-iq.wav file
-                                                    ### GRAPE_PSWS_ID has the form <SITE_ID>_<INSTRUMENT_ID>,  where those values are obtained from a PSWS user account which assigns these values for
-                                                    ### this site+receiver.  That PSWS site is at https://pswsnetwork.caps.ua.edu/home
-                                                    ### SITE_ID has the form 'S000nnn' while INSTRUMENT has the form 'NNN'
-`GRAPE_PSWS_TOKEN="t1q8kx36f18kz8c6g5k9"            ### This value is the "token" created for that user account by the PSWS server.  It is a very long string with 0-9 and a-z characters in it
-                                                    ### Together GRAPE_PSWS_ID + GRAPE_PSWS_PASSWORD are the user+password used to authenticate rsync access to  WD1/grape.wsprdaemon.org
-##### After those variables are defined, the WD user must register this server with the GRAPE server by executing 'wdg p'.  This command needs to be run successfully only once after which automatic uploads
-##### to the GRAPE server are enabled.
-
+## If "yes" the site uploads a 150 KByte .png file to wsprnet.org where it can be viewed at http://wsprdaemon.org/graphs/${WSPRNET_REPORTER_ID}/
+## Since better, configurable Grafana graphs are available from the wsprdeamon.org, to conserve your site's Internet usage I now discourage the use of this feature
+SIGNAL_LEVEL_UPLOAD_GRAPHS="yes"
 
 declare RECEIVER_LIST=(
-        "KA9Q_0                     wspr-pcm.local     K2MFF         FN20vp    NULL"
-        "KA9Q_0_WWV                   wwv-iq.local     K2MFF         FN20vp    NULL"        
+        "KA9Q_0                     wspr-pcm.local     ${WSPRNET_REPORTER_ID}        ${REPORTER_GRID}    <SDR_PASSWORD_IF_NEEDED>"
+        "KA9Q_0_WWV                   wwv-iq.local     ${WSPRNET_REPORTER_ID}        ${REPORTER_GRID}    <SDR_PASSWORD_IF_NEEDED>"
 )
 
-declare WSPR_SCHEDULE=(
-    "00:00   KA9Q_0,2200,W2:F2:F5:F15:F30  KA9Q_0,630,W2:F2:F5  KA9Q_0,160,W2:F2:F5   KA9Q_0,80,W2:F2:F5    KA9Q_0,80eu,W2:F2:F5  KA9Q_0,60,W2:F2:F5  KA9Q_0,60eu,W2:F2:F5  KA9Q_0,40,W2:F2:F5
-             KA9Q_0,30,W2:F2:F5            KA9Q_0,22,W2         KA9Q_0,20,W2:F2:F5    KA9Q_0,17,W2:F2:F5    KA9Q_0,15,W2:F2:F5    KA9Q_0,12,W2:F2:F5  KA9Q_0,10,W2:F2:F5
-             KA9Q_0_WWV,WWV_2_5,I1         KA9Q_0_WWV,WWV_5,I1  KA9Q_0_WWV,WWV_10,I1  KA9Q_0_WWV,WWV_15,I1  KA9Q_0_WWV,WWV_20,I1  KA9Q_0_WWV,WWV_25,I1
-             KA9Q_0_WWV,CHU_3,I1           KA9Q_0_WWV,CHU_7,I1  KA9Q_0_WWV,CHU_14,I1"
+### Here are two examples of WSPR_SCHEDULEs.  Much more complex SDR configurations and schedules are desribed in wd_template_full.conf
+declare WSPR_SCHEDULE_only_rx888=(
+    "00:00             KA9Q_0,2200,W2:F2:F5:F15:F30  KA9Q_0,630,W2:F2:F5  KA9Q_0,160,W2:F2:F5   KA9Q_0,80,W2:F2:F5  KA9Q_0,80eu,W2:F2:F5  KA9Q_0,60,W2:F2:F5  KA9Q_0,60eu,W2:F2:F5  KA9Q_0,40,W2:F2:F5
+                       KA9Q_0,30,W2:F2:F5            KA9Q_0,22,W2         KA9Q_0,20,W2:F2:F5    KA9Q_0,17,W2:F2:F5  KA9Q_0,15,W2:F2:F5    KA9Q_0,12,W2:F2:F5  KA9Q_0,10,W2:F2:F5    KA9Q_0,6,W2:F2:F5
+
+                       KA9Q_0_WWV,WWVB,I1            KA9Q_0_WWV,WWV_2_5,I1  KA9Q_0_WWV,WWV_5,I1  KA9Q_0_WWV,WWV_10,I1   KA9Q_0_WWV,WWV_15,I1  KA9Q_0_WWV,WWV_20,I1  KA9Q_0_WWV,WWV_25,I1
+                       KA9Q_0_WWV,CHU_3,I1           KA9Q_0_WWV,CHU_7,I1    KA9Q_0_WWV,CHU_14,I1"
 )
+
+### Default to use the WSPR_SCHEDULE_only_rx888 schedule
+declare WSPR_SCHEDULE=( "${WSPR_SCHEDULE_only_rx888[@]}" )
 ```
 
 Once you have your configuration written, if you would like to directly edit the existing template configuration you can use,
@@ -921,7 +911,7 @@ by going into normal mode by pressing <shortcut>escape</shortcut> entering `:q!`
 Otherwise, go into normal mode with <shortcut>escape</shortcut> as well and enter `:wq` to save and exit the editor.
 
 > If you keep having issues with *nvim* you can try *nano* instead, which is a different command line based text editor.
-> I wouldn't recomend using it for editing the sudoers file from earlier though as it doesnt like editing read only files.
+> I wouldn't recommend using it for editing the sudoers file from earlier though as it doesn't like editing read only files.
 >
 > You can use nano instead by replacing `nvim` with `nano` in the commands mentioned above.
 > *Remember that the notation `^` refers to the <shortcut>ctrl</shortcut> key, so to save and exit in nano it says press `^X` which means
@@ -959,6 +949,11 @@ Then log back in, and run `./wsprdaemon.sh -V` again.
 Now at some point you should get a prompt saying that the RX888 MkII is not attached to a USB port. 
 
 #### 2.4.4: Setting the GPS clock speed
+
+> If you are using the older miniGPS Refrenced Clock *Mini Precision GPS Reference Clock* (Identifiable by its Mini-USB connector rather than USB-C) there is not a linux version of the software to configure it,
+> you must instead download the configuration software at [Leobodnar.com](https://www.leobodnar.com/shop/index.php?main_page=product_info&cPath=107&products_id=301&zenid=b5f5097eeba04cc477ae9868276b8055) 
+> and change the value on a seperate Windows or MacOS based computer, then connect the GPS clock to the SDR afterwards. (It saves the config after power off)
+{style=warning}
 
 When you get this message, plug in the RX888 to one of the USB 3.0/Super Speed ports (Blue USB ports), and make sure the 
 GPS clock is connected to the RX-888 SMA input, and plug the GPS clock USB port into one of the USB ports on the beelink.
@@ -1034,16 +1029,27 @@ cd ~/wsprdaemon
 
 Now, you should not get any more errors but you should get a prompt asking `Enter file in which to save the key (/home/wsprdaemon/.ssh/id_ed25519):`
 
-When you get here, press <control>Enter</control> 3 or 4 times, including when it asks for a *passphrase*, however, do not click enter if it asks for a *Password* to login to 
-an account through ssh.
+When you get here, press <control>Enter</control> 3 or 4 times, including when it asks for a *passphrase*.
 
-If you are lucky it will ask you for an SSH password to log into the PSWS server, however, on the current release as of writing this there is a bug that is not
-correctly setting up auto logon for the PSWS server at the University of Alabama. If this does happen, put in the PSWS Token you put in the wsprdaemon config earlier 
-which is the password to the server. Eg.`GRAPE_PSWS_TOKEN="t1q8kx36f18kz8c6g5k9"` But just the part in quotes.
 
-If this did not happen go to the next section. Otherwise, skip the next section.  
+> As mentioned earlier in this document, as of January 2026 the Universiy of Alabama server is still being worked on to allow autologin of the
+> wsprdaemon agent to access the server via SFTP using the SSH key that was just generated. The intended way to setup the login is expected to be 
+> a dialog box that will be located in the PSWS Site setup screen from earlier where the diaglog box will ask you to paste the SSH public key
+> which will allow you to authenticate login using the associated Private key. For now however, you must email the public key to `wdengelke@retiree.ua.edu`
+> who will manually add the key for new stations. 
+{style=warning}
+
 
 ##### 2.4.4.5 Fixing the PSWS Autologin
+
+> For extra context the aforementioned *Public* key will be the file stored at `~/.ssh/id_ed25519.pub` (The dot in front of `.ssh` means
+> the folder/directory named ssh is hidden from the `ls` command unless you run `ls -a`). A Public key is as the name suggests a key of sorts that
+> can be given out publicly to identify you. There is a second file that was generated called the *Private* key with the path `~/.ssh/id_ed25519`. 
+> This as the name suggests is Private and must be kept secret as this is the file that allows you to access the University of Alabama server.
+> A Private key is used to generate a certificate for the SSH/SFTP session that will be sent to the remote server which the server can use the
+> public key to verify the authenticity of the certificate without necessarily knowing the Private key itself. (Based on factors of prime numbers
+> and is the basis of RSA encryption)
+{style=note}
 
 Enter the following command to print out the public key of the SSH key you just made.
 
@@ -1062,8 +1068,6 @@ Now run the following command to ssh into the PSWS server manually,
 wdssp
 ```
 
-Enter yes if it asks for fingerprint verification, then when it asks for a password enter the PSWS token from the 
-wsprdaemon config before. Eg. `GRAPE_PSWS_TOKEN="t1q8kx36f18kz8c6g5k9"` But just the part in quotes.
 
 Now once you are logged into the PSWS server run this command, make sure you use `vi` not `nvim` since that is what we normally have been using.
 
